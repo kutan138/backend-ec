@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 # Nestjs specific
 /dist
 /node_modules
 /build
 /tmp
-=======
-# compiled output
-/dist
-/node_modules
-/build
->>>>>>> 46b680b (Init code)
 
 # Logs
 logs
