@@ -24,12 +24,22 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: { sub: string; email: string }): Promise<User> {
-    const user = await this.usersService.findById(payload.sub);
+  async validate(payload: {
+    sub: string;
+    roles: string[];
+    permissions: string[];
+  }): Promise<
+    Pick<User, 'email' | 'fullName' | 'avatar'> & {
+      roles: string[];
+      permissions: string[];
+    }
+  > {
+    const { roles, permissions, sub } = payload;
+    const user = await this.usersService.findById(sub);
     if (!user) {
       throw new UnauthorizedException();
     }
-
-    return user;
+    const { email, fullName, avatar } = user;
+    return { email, fullName, avatar, roles, permissions };
   }
 }

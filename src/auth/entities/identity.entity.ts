@@ -16,11 +16,11 @@ export class Identity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'enum', enum: AuthProvider })
-  provider: AuthProvider;
-
   @Column({ nullable: true })
   providerUserId: string;
+
+  @Column({ type: 'enum', enum: AuthProvider })
+  provider: AuthProvider;
 
   @Column({ nullable: true })
   passwordHash: string;

@@ -21,15 +21,11 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @ApiBody({ type: LoginDto })
   async login(@CurrentUser() user: User): Promise<{
-    user: User;
     accessToken: string;
     refreshToken: string;
   }> {
     const token = await this.authService.generateTokens(user);
-    return {
-      user,
-      ...token,
-    };
+    return token;
   }
 
   @Post('register')
@@ -44,9 +40,9 @@ export class AuthController {
     return this.authService.activeAccount(activeDto.token);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post('refresh')
   @ApiBearerAuth('access-token')
+  @UseGuards(JwtAuthGuard)
   async refresh(@CurrentUser() user: User): Promise<{
     accessToken: string;
     refreshToken: string;
@@ -65,7 +61,6 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@CurrentUser() user: User): Promise<{
-    user: User;
     accessToken: string;
     refreshToken: string;
   }> {
@@ -73,7 +68,6 @@ export class AuthController {
       await this.authService.generateTokens(user);
 
     return {
-      user,
       accessToken,
       refreshToken,
     };

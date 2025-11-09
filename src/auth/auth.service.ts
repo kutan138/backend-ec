@@ -19,6 +19,7 @@ import { AuthProvider } from './enums/AuthProvider';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { RegisterSeederDto } from './dtos/register-seeder.dto';
 import { TypedConfigService } from 'src/config/TypedConfigService';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,7 @@ export class AuthService {
     private readonly configService: TypedConfigService,
     private readonly jwtService: JwtService,
     private readonly mailService: MailService,
+    private readonly userService: UsersService,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     @InjectRepository(Identity)
@@ -48,10 +50,16 @@ export class AuthService {
     return isMatched;
   }
 
-  async generateTokens(
-    user: User,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
-    const payload = { sub: user.id, email: user.email };
+  async generateTokens({
+    id,
+  }: User): Promise<{ accessToken: string; refreshToken: string }> {
+    const userProfile = await this.userService.getUserProfile(id);
+    const payload = {
+      sub: id,
+      email: userProfile?.email,
+      roles: userProfile?.roles,
+      permissions: userProfile?.permissions,
+    };
     const jwtConfig = this.configService.getJwtConfig();
 
     const accessToken = await this.jwtService.signAsync(payload, {
