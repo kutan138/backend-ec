@@ -4,7 +4,10 @@ import { ConfigModules } from '../types/ConfigModules';
 const mailConfig = registerAs(ConfigModules.Mail, () => ({
   user: process.env.MAIL_USER,
   pass: process.env.MAIL_PASS,
-  smtpPort: parseInt(process.env.SMTP_PORT ?? '587', 10),
+  host: process.env.MAIL_HOST,
+  port: parseInt(process.env.MAIL_PORT ?? '587', 10),
+  from: process.env.MAIL_FROM,
+  secure: process.env.MAIL_SECURE === 'true',
 }));
 
 export type MailConfig = ConfigType<typeof mailConfig>;

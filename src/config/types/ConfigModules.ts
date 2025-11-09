@@ -1,4 +1,5 @@
 export const ConfigModules = {
+  App: 'app',
   Database: 'database',
   Jwt: 'jwt',
   Google: 'google',

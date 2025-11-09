@@ -6,6 +6,7 @@ import { GoogleConfig } from './environment/google.config';
 import { JwtConfig } from './environment/jwt.config';
 import { MailConfig } from './environment/mail.config';
 import { ConfigModules, ConfigModulesType } from './types/ConfigModules';
+import { AppConfig } from './environment/app.config';
 
 @Injectable()
 export class TypedConfigService {
@@ -17,6 +18,10 @@ export class TypedConfigService {
       throw new Error(`Config module "${key}" is missing`);
     }
     return config;
+  }
+
+  getAppConfig(): AppConfig {
+    return this.getModuleConfig<AppConfig>(ConfigModules.App);
   }
 
   getDatabaseConfig(): DatabaseConfig {
@@ -35,12 +40,20 @@ export class TypedConfigService {
     return this.getModuleConfig<MailConfig>(ConfigModules.Mail);
   }
 
-  getEnv(): NodeEnv | undefined {
-    return this.configService.get('NODE_ENV');
+  getEnv(): NodeEnv {
+    const appConfig = this.getModuleConfig<{
+      env: NodeEnv;
+    }>(ConfigModules.App);
+
+    if (!appConfig.env) {
+      throw new Error('NODE_ENV is not defined in AppConfig');
+    }
+
+    return appConfig.env;
   }
 
   isLocal(): boolean {
-    return this.configService.get('NODE_ENV') === NodeEnv.Local;
+    return this.getEnv() === NodeEnv.Local;
   }
 
   isTest(): boolean {

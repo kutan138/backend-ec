@@ -1,5 +1,5 @@
 services:
-  postgres:
+  db:
     image: postgres:16
     container_name: postgres_db
     restart: always
@@ -8,9 +8,11 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "${DB_PORT:-5432}:5432"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pgnetwork
 
   pgadmin:
     image: dpage/pgadmin4
@@ -22,7 +24,12 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - postgres
+      - db
+    networks:
+      - pgnetwork
 
 volumes:
   postgres_data:
+networks:
+  pgnetwork:
+    driver: bridge

@@ -1,26 +1,32 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity.js';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+  constructor(
+    @InjectRepository(User) private readonly repo: Repository<User>,
+  ) {}
 
   findAll() {
-    return `This action returns all users`;
+    return this.repo.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  findById(id: string): Promise<User | null> {
+    return this.repo.findOne({ where: { id } });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(
+    id: string,
+    data: QueryDeepPartialEntity<User>,
+  ): Promise<User | null> {
+    await this.repo.update(id, data);
+    return this.findById(id);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async delete(id: string | number): Promise<void> {
+    await this.repo.delete(id);
   }
 }

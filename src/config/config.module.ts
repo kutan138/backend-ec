@@ -6,15 +6,16 @@ import databaseConfig from './environment/database.config';
 import googleConfig from './environment/google.config';
 import jwtConfig from './environment/jwt.config';
 import mailConfig from './environment/mail.config';
+import appConfig from './environment/app.config';
 
 @Global()
 @Module({
   imports: [
     NestConfigModule.forRoot({
       isGlobal: true,
-      load: [databaseConfig, googleConfig, jwtConfig, mailConfig],
+      envFilePath: `.env.${process.env.NODE_ENV || 'local'}`,
+      load: [appConfig, databaseConfig, googleConfig, jwtConfig, mailConfig],
       validate: validateConfig,
-      cache: true,
       expandVariables: true,
     }),
   ],

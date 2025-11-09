@@ -1,5 +1,12 @@
 // src/config/environment.ts
-import { IsEmail, IsEnum, IsInt, IsString, Min } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsString,
+  Min,
+} from 'class-validator';
 
 export enum NodeEnv {
   Local = 'local',
@@ -13,6 +20,7 @@ export class EnvironmentVariables {
 
   //APP
   @IsString()
+  @IsNotEmpty()
   APP_DOMAIN: string;
 
   // Database

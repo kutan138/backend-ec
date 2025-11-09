@@ -1,7 +1,6 @@
-import { Logger, Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypedConfigService } from 'src/config/TypedConfigService';
-import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -27,18 +26,19 @@ import { DataSource } from 'typeorm';
     }),
   ],
 })
-export class DatabaseModule implements OnModuleInit {
-  private readonly logger = new Logger(DatabaseModule.name);
+export class DatabaseModule {}
+// export class DatabaseModule implements OnModuleInit {
+//   private readonly logger = new Logger(DatabaseModule.name);
 
-  constructor(private readonly dataSource: DataSource) {}
+//   constructor(private readonly dataSource: DataSource) {}
 
-  async onModuleInit() {
-    try {
-      await this.dataSource.query('SELECT 1');
-      this.logger.log('✅ Database connected successfully');
-    } catch (err) {
-      this.logger.error('❌ Database connection failed', err);
-      throw err;
-    }
-  }
-}
+//   async onModuleInit() {
+//     try {
+//       await this.dataSource.query('SELECT 1');
+//       this.logger.log('✅ Database connected successfully');
+//     } catch (err) {
+//       this.logger.error('❌ Database connection failed', err);
+//       throw err;
+//     }
+//   }
+// }

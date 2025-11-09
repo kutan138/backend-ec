@@ -3,7 +3,7 @@ import { ConfigModules } from '../types/ConfigModules';
 
 const databaseConfig = registerAs(ConfigModules.Database, () => ({
   host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT ?? '5432', 10),
+  port: Number(process.env.DB_PORT) || 5432,
   user: process.env.DB_USER,
   pass: process.env.DB_PASS,
   name: process.env.DB_NAME,
