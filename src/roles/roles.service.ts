@@ -15,22 +15,27 @@ export class RolesService {
     name: string;
     permissions?: Permission[];
   }): Promise<Role> {
-    let role = await this.repo.findOne({
+    const role = await this.repo.findOne({
       where: { name: data.name },
       relations: ['permissions'],
     });
 
     if (role) {
-      if (data.permissions?.length) {
-        role.permissions = [
-          ...new Set([...role.permissions, ...data.permissions]),
-        ];
-        return this.repo.save(role);
+      if (role.permissions.length > 0) {
+        const existingPermissionIds = new Set(
+          role.permissions.map((p) => p.id),
+        );
+        const newPermissions =
+          data.permissions?.filter((p) => !existingPermissionIds.has(p.id)) ||
+          [];
+        role.permissions = [...role.permissions, ...newPermissions];
+        await this.repo.save(role);
       }
+
       return role;
     }
 
-    role = this.repo.create(data);
-    return this.repo.save(role);
+    const newRole = this.repo.create(data);
+    return this.repo.save(newRole);
   }
 }
