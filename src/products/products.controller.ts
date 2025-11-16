@@ -70,7 +70,10 @@ export class ProductsController {
     description: 'Product updated successfully',
     type: Product,
   })
+<<<<<<< Updated upstream
   @ApiResponse({ status: 404, description: 'Product not found' })
+=======
+>>>>>>> Stashed changes
   update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
