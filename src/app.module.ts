@@ -7,6 +7,13 @@ import { LoggerModule } from './logger/logger.module';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { MailModule } from './mail/mail.module';
+import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
+import { CartsModule } from './carts/carts.module';
+import { OrdersModule } from './orders/orders.module';
+import { PaymentsModule } from './payments/payments.module';
+import { StockLogsModule } from './stock-logs/stock-logs.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -18,6 +25,13 @@ import { MailModule } from './mail/mail.module';
     RolesModule,
     PermissionsModule,
     MailModule,
+    CategoriesModule,
+    ProductsModule,
+    CartsModule,
+    OrdersModule,
+    PaymentsModule,
+    StockLogsModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}
