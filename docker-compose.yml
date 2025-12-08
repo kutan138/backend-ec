@@ -1,35 +1,23 @@
 services:
-  db:
+  postgres:
     image: postgres:16
-    container_name: postgres_db
+    container_name: nestjs-postgres-${NODE_ENV:-local}
     restart: always
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres-data-${NODE_ENV:-local}:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     networks:
-      - pgnetwork
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin_ec
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    ports:
-      - "8080:80"
-    depends_on:
-      - db
-    networks:
-      - pgnetwork
+      - nestjs-network
 
 volumes:
-  postgres_data:
+  postgres-data-local:
+  postgres-data-staging:
+  postgres-data-production:
 networks:
-  pgnetwork:
+  nestjs-network:
     driver: bridge
