@@ -5,7 +5,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from 'src/roles/decorators/roles.decorator';
 import { RolesGuard } from 'src/roles/guards/roles.guard';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
-import { User } from './entities/user.entity';
+import type { CurrentUser as ICurrentUser } from 'src/common/interfaces/current-user.interface';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -23,7 +23,10 @@ export class UsersController {
   @Get('profile')
   @ApiBearerAuth('access-token')
   @UseGuards(JwtAuthGuard)
-  async getProfile(@CurrentUser() user: User) {
+  async getProfile(@CurrentUser() user: ICurrentUser) {
+    if (!user.id) {
+      return null;
+    }
     const profile = await this.usersService.getUserProfile(user.id);
     if (!profile) return null;
     return profile;

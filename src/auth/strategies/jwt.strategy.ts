@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { TypedConfigService } from 'src/config/TypedConfigService';
-import { User } from 'src/users/entities/user.entity';
+import { CurrentUser } from 'src/common/interfaces/current-user.interface';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
@@ -28,18 +28,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     sub: string;
     roles: string[];
     permissions: string[];
-  }): Promise<
-    Pick<User, 'email' | 'fullName' | 'avatar'> & {
-      roles: string[];
-      permissions: string[];
-    }
-  > {
+  }): Promise<CurrentUser> {
     const { roles, permissions, sub } = payload;
     const user = await this.usersService.findById(sub);
     if (!user) {
       throw new UnauthorizedException();
     }
     const { email, fullName, avatar } = user;
-    return { email, fullName, avatar, roles, permissions };
+    return { id: sub, email, fullName, avatar, roles, permissions };
   }
 }

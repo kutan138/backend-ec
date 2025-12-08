@@ -52,7 +52,9 @@ export class AuthService {
 
   async generateTokens({
     id,
-  }: User): Promise<{ accessToken: string; refreshToken: string }> {
+  }: {
+    id: string;
+  }): Promise<{ accessToken: string; refreshToken: string }> {
     const userProfile = await this.userService.getUserProfile(id);
     const payload = {
       sub: id,
