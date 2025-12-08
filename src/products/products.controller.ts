@@ -13,14 +13,16 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiBody,
 } from '@nestjs/swagger';
+import { MessageResponseDto } from 'src/auth/dtos/message-response.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
 import { CreateProductImageDto } from './dto/create-product-image.dto';
-import { Product } from './entities/product.entity';
-import { ProductImage } from './entities/product-image.entity';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { ProductImageResponseDto } from './dto/product-image-response.dto';
+import { ProductResponseDto } from './dto/product-response.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -31,12 +33,15 @@ export class ProductsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new product' })
+  @ApiBody({ type: CreateProductDto })
   @ApiResponse({
     status: 201,
     description: 'Product created successfully',
-    type: Product,
+    type: ProductResponseDto,
   })
-  create(@Body() createProductDto: CreateProductDto): Promise<Product> {
+  async create(
+    @Body() createProductDto: CreateProductDto,
+  ): Promise<ProductResponseDto> {
     return this.productsService.create(createProductDto);
   }
 
@@ -45,9 +50,9 @@ export class ProductsController {
   @ApiResponse({
     status: 200,
     description: 'List of all products',
-    type: [Product],
+    type: [ProductResponseDto],
   })
-  findAll(): Promise<Product[]> {
+  async findAll(): Promise<ProductResponseDto[]> {
     return this.productsService.findAll();
   }
 
@@ -56,54 +61,66 @@ export class ProductsController {
   @ApiResponse({
     status: 200,
     description: 'Product found',
-    type: Product,
+    type: ProductResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  findOne(@Param('id') id: string): Promise<Product> {
+  async findOne(@Param('id') id: string): Promise<ProductResponseDto> {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a product' })
+  @ApiBody({ type: UpdateProductDto })
   @ApiResponse({
     status: 200,
     description: 'Product updated successfully',
-    type: Product,
+    type: ProductResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-  ): Promise<Product> {
+  ): Promise<ProductResponseDto> {
     return this.productsService.update(id, updateProductDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a product' })
-  @ApiResponse({ status: 200, description: 'Product deleted successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Product deleted successfully',
+    type: MessageResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.productsService.remove(id);
+  async remove(@Param('id') id: string): Promise<MessageResponseDto> {
+    await this.productsService.remove(id);
+    return { message: 'Product deleted successfully' };
   }
 
   @Post('images')
   @ApiOperation({ summary: 'Add an image to a product' })
+  @ApiBody({ type: CreateProductImageDto })
   @ApiResponse({
     status: 201,
     description: 'Image added successfully',
-    type: ProductImage,
+    type: ProductImageResponseDto,
   })
-  addImage(
+  async addImage(
     @Body() createProductImageDto: CreateProductImageDto,
-  ): Promise<ProductImage> {
+  ): Promise<ProductImageResponseDto> {
     return this.productsService.addImage(createProductImageDto);
   }
 
   @Delete('images/:id')
   @ApiOperation({ summary: 'Remove an image from a product' })
-  @ApiResponse({ status: 200, description: 'Image removed successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Image removed successfully',
+    type: MessageResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Image not found' })
-  removeImage(@Param('id') id: string): Promise<void> {
-    return this.productsService.removeImage(id);
+  async removeImage(@Param('id') id: string): Promise<MessageResponseDto> {
+    await this.productsService.removeImage(id);
+    return { message: 'Image removed successfully' };
   }
 }

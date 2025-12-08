@@ -1,11 +1,20 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiBody,
+} from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesService } from './roles.service';
-import { Permission } from 'src/permissions/entities/permission.entity';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateRoleDto } from './dto/create-role.dto';
-import { Role } from './entities/role.entity';
+import { RoleResponseDto } from './dto/role-response.dto';
 
+@ApiTags('roles')
 @Controller('roles')
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth('access-token')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
@@ -15,9 +24,11 @@ export class RolesController {
   @ApiResponse({
     status: 201,
     description: 'Role created or updated successfully',
-    type: Role,
+    type: RoleResponseDto,
   })
-  createRole(data: { name: string; permissions?: Permission[] }) {
-    return this.rolesService.create(data);
+  async createRole(
+    @Body() createRoleDto: CreateRoleDto,
+  ): Promise<RoleResponseDto> {
+    return this.rolesService.create(createRoleDto);
   }
 }

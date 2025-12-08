@@ -13,12 +13,14 @@ import {
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
+  ApiBody,
 } from '@nestjs/swagger';
+import { MessageResponseDto } from 'src/auth/dtos/message-response.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CategoriesService } from './categories.service';
+import { CategoryResponseDto } from './dto/category-response.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Category } from './entities/category.entity';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -29,13 +31,16 @@ export class CategoriesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new category' })
+  @ApiBody({ type: CreateCategoryDto })
   @ApiResponse({
     status: 201,
     description: 'Category created successfully',
-    type: Category,
+    type: CategoryResponseDto,
   })
   @ApiResponse({ status: 409, description: 'Category name already exists' })
-  create(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
+  async create(
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<CategoryResponseDto> {
     return this.categoriesService.create(createCategoryDto);
   }
 
@@ -44,9 +49,9 @@ export class CategoriesController {
   @ApiResponse({
     status: 200,
     description: 'List of all categories',
-    type: [Category],
+    type: [CategoryResponseDto],
   })
-  findAll(): Promise<Category[]> {
+  async findAll(): Promise<CategoryResponseDto[]> {
     return this.categoriesService.findAll();
   }
 
@@ -55,34 +60,40 @@ export class CategoriesController {
   @ApiResponse({
     status: 200,
     description: 'Category found',
-    type: Category,
+    type: CategoryResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  findOne(@Param('id') id: string): Promise<Category> {
+  async findOne(@Param('id') id: string): Promise<CategoryResponseDto> {
     return this.categoriesService.findOne(id);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a category' })
+  @ApiBody({ type: UpdateCategoryDto })
   @ApiResponse({
     status: 200,
     description: 'Category updated successfully',
-    type: Category,
+    type: CategoryResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Category not found' })
   @ApiResponse({ status: 409, description: 'Category name already exists' })
-  update(
+  async update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
-  ): Promise<Category> {
+  ): Promise<CategoryResponseDto> {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a category' })
-  @ApiResponse({ status: 200, description: 'Category deleted successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Category deleted successfully',
+    type: MessageResponseDto,
+  })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  remove(@Param('id') id: string): Promise<void> {
-    return this.categoriesService.remove(id);
+  async remove(@Param('id') id: string): Promise<MessageResponseDto> {
+    await this.categoriesService.remove(id);
+    return { message: 'Category deleted successfully' };
   }
 }
