@@ -25,7 +25,8 @@ import { MailModule } from '../mail/mail.module';
         return {
           secret: jwtConfig.accessSecret,
           signOptions: {
-            expiresIn: Number(jwtConfig.accessExpiresIn),
+            expiresIn: jwtConfig.accessExpiresIn,
+            secret: jwtConfig.accessSecret,
           },
         };
       },

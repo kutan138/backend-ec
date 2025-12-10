@@ -1,11 +1,19 @@
 import { registerAs } from '@nestjs/config';
-import { ConfigModules } from '../types/ConfigModules';
+import type { StringValue as MsStringValue } from 'ms';
+import { ConfigModules } from 'src/config/types/ConfigModules';
+
+type ExpiresValue = number | MsStringValue;
+
+const parseExpires = (value: string): ExpiresValue => {
+  const parsed = Number(value);
+  return Number.isNaN(parsed) ? (value as MsStringValue) : parsed;
+};
 
 const jwtConfig = registerAs(ConfigModules.Jwt, () => ({
   accessSecret: process.env.JWT_ACCESS_SECRET!,
-  accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN!,
+  accessExpiresIn: parseExpires(process.env.JWT_ACCESS_EXPIRES_IN!),
   refreshSecret: process.env.JWT_REFRESH_SECRET!,
-  refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN!,
+  refreshExpiresIn: parseExpires(process.env.JWT_REFRESH_EXPIRES_IN!),
 }));
 
 export type JwtConfig = ReturnType<typeof jwtConfig>;
