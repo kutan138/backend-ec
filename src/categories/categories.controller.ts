@@ -21,6 +21,7 @@ import { CategoriesService } from './categories.service';
 import { CategoryResponseDto } from './dto/category-response.dto';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ReorderCategoryDto } from './dto/reorder-category.dto';
 
 @ApiTags('categories')
 @Controller('categories')
@@ -65,6 +66,18 @@ export class CategoriesController {
   @ApiResponse({ status: 404, description: 'Category not found' })
   async findOne(@Param('id') id: string): Promise<CategoryResponseDto> {
     return this.categoriesService.findOne(id);
+  }
+
+  @Patch('reorder')
+  @ApiOperation({ summary: 'Reorder categories' })
+  @ApiBody({ type: ReorderCategoryDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Categories reordered successfully',
+    type: MessageResponseDto,
+  })
+  async reorder(@Body() dto: ReorderCategoryDto) {
+    return this.categoriesService.reorder(dto);
   }
 
   @Patch(':id')

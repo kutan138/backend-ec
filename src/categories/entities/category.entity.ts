@@ -17,6 +17,12 @@ export class Category {
   @Column({ type: 'text', nullable: true })
   description: string;
 
+  @Column({ type: 'uuid', nullable: true })
+  parentId: string;
+
+  @Column({ type: 'int', default: 0 })
+  order: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

@@ -4,16 +4,18 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { ReorderCategoryDto } from './dto/reorder-category.dto';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
@@ -26,6 +28,18 @@ export class CategoriesService {
       throw new ConflictException(
         `Category with name "${createCategoryDto.name}" already exists`,
       );
+    }
+
+    if (createCategoryDto.parentId) {
+      const parentCategory = await this.categoryRepository.findOne({
+        where: { id: createCategoryDto.parentId },
+      });
+
+      if (!parentCategory) {
+        throw new NotFoundException(
+          `Parent category with ID "${createCategoryDto.parentId}" not found`,
+        );
+      }
     }
 
     const category = this.categoryRepository.create(createCategoryDto);
@@ -76,5 +90,24 @@ export class CategoriesService {
   async remove(id: string): Promise<void> {
     const category = await this.findOne(id);
     await this.categoryRepository.remove(category);
+  }
+
+  async reorder(dto: ReorderCategoryDto): Promise<{ success: boolean }> {
+    const { parentId = null, items } = dto;
+
+    await this.dataSource.transaction(async (manager) => {
+      for (const item of items) {
+        await manager.update(
+          Category,
+          { id: item.id },
+          {
+            parentId: parentId ?? undefined,
+            order: item.order,
+          },
+        );
+      }
+    });
+
+    return { success: true };
   }
 }
