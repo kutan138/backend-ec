@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
@@ -48,7 +49,10 @@ export class CategoriesService {
 
   findAll(): Promise<Category[]> {
     return this.categoryRepository.find({
-      order: { createdAt: 'DESC' },
+      order: {
+        parentId: 'ASC',
+        order: 'ASC',
+      },
     });
   }
 
@@ -95,17 +99,25 @@ export class CategoriesService {
   async reorder(dto: ReorderCategoryDto): Promise<{ success: boolean }> {
     const { parentId = null, items } = dto;
 
+    if (!items.length) {
+      throw new BadRequestException('Items is empty');
+    }
+
     await this.dataSource.transaction(async (manager) => {
-      for (const item of items) {
-        await manager.update(
-          Category,
-          { id: item.id },
-          {
-            parentId: parentId ?? undefined,
-            order: item.order,
-          },
-        );
-      }
+      const ids = items.map((i) => i.id);
+
+      await manager
+        .createQueryBuilder()
+        .update(Category)
+        .set({
+          parentId: parentId,
+          order: () =>
+            `CASE id ${items
+              .map((i) => `WHEN '${i.id}' THEN ${i.order}`)
+              .join(' ')} END`,
+        })
+        .whereInIds(ids)
+        .execute();
     });
 
     return { success: true };
