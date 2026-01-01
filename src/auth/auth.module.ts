@@ -12,6 +12,7 @@ import { LocalStrategy } from './strategies/local.strategy';
 import { AppLogger } from 'src/logger/logger.service';
 import { TypedConfigService } from 'src/config/TypedConfigService';
 import { MailModule } from '../mail/mail.module';
+import { JwtRefreshStrategy } from './strategies/jwt-refresh.strategy';
 
 @Module({
   controllers: [AuthController],
@@ -37,6 +38,7 @@ import { MailModule } from '../mail/mail.module';
     AuthService,
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshStrategy,
     GoogleStrategy,
     AppLogger,
   ],

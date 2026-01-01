@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -18,8 +25,8 @@ import { ResetPasswordDto } from './dtos/reset-password.dto';
 import { TokenResponseDto } from './dtos/token-response.dto';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
+import { JwtRefreshGuard } from './guards/jwt-auth-refresh.guard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -69,8 +76,8 @@ export class AuthController {
   }
 
   @Post('refresh')
-  @ApiBearerAuth('access-token')
-  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('refresh-token')
+  @UseGuards(JwtRefreshGuard)
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({
     status: 200,
@@ -79,10 +86,10 @@ export class AuthController {
   })
   async refresh(@CurrentUser() user: ICurrentUser): Promise<TokenResponseDto> {
     if (!user.id) {
-      throw new Error('User ID is required');
+      throw new UnauthorizedException();
     }
-    const token = await this.authService.generateTokens({ id: user.id });
-    return token;
+
+    return this.authService.generateTokens({ id: user.id });
   }
 
   @Get('google')
