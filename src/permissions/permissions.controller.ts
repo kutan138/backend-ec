@@ -1,35 +1,80 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
-  ApiBody,
+  ApiParam,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreatePermissionDto } from './dto/create-permission.dto';
-import { PermissionResponseDto } from './dto/permission-response.dto';
 import { PermissionsService } from './permissions.service';
+import { Permission } from './entities/permission.entity';
+import { UpdatePermissionDto } from './dto/update-permission.dto';
 
 @ApiTags('permissions')
 @Controller('permissions')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('access-token')
 export class PermissionsController {
-  constructor(private readonly permissionsService: PermissionsService) {}
+  constructor(private readonly service: PermissionsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new permission' })
-  @ApiBody({ type: CreatePermissionDto })
-  @ApiResponse({
-    status: 201,
-    description: 'Permission created successfully',
-    type: PermissionResponseDto,
+  @ApiOperation({ summary: 'Tạo permission mới' })
+  @ApiResponse({ status: 201, type: Permission })
+  create(@Body() dto: CreatePermissionDto) {
+    return this.service.create(dto);
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Danh sách permission' })
+  @ApiResponse({ status: 200, type: [Permission] })
+  findAll() {
+    return this.service.findAll();
+  }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Chi tiết permission' })
+  @ApiParam({
+    name: 'id',
+    example: 'uuid-v4',
   })
-  @ApiResponse({ status: 409, description: 'Permission name already exists' })
-  async create(
-    @Body() createPermissionDto: CreatePermissionDto,
-  ): Promise<PermissionResponseDto> {
-    return this.permissionsService.create(createPermissionDto);
+  @ApiResponse({ status: 200, type: Permission })
+  findOne(@Param('id') id: string) {
+    return this.service.findOne(id);
+  }
+
+  @Put(':id')
+  @ApiOperation({ summary: 'Cập nhật permission' })
+  @ApiParam({
+    name: 'id',
+    example: 'uuid-v4',
+  })
+  @ApiResponse({ status: 200, type: Permission })
+  update(@Param('id') id: string, @Body() dto: UpdatePermissionDto) {
+    return this.service.update(id, dto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Xóa permission' })
+  @ApiParam({
+    name: 'id',
+    example: 'uuid-v4',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Permission đã bị xóa',
+  })
+  remove(@Param('id') id: string) {
+    return this.service.remove(id);
   }
 }

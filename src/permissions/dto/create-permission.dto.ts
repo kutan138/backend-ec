@@ -1,21 +1,29 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsOptional, IsString, Matches } from 'class-validator';
 
 export class CreatePermissionDto {
   @ApiProperty({
-    example: 'read:users',
-    description: 'Permission name',
+    example: 'user.view',
+    description: 'Permission key (module.action)',
   })
-  @IsString()
-  @IsNotEmpty()
+  @Matches(/^[a-z]+\.[a-z]+$/, {
+    message: 'key phải theo dạng module.action (vd: user.view)',
+  })
   name: string;
 
   @ApiProperty({
-    example: 'Read users permission',
-    description: 'Permission description',
+    example: 'Xem danh sách người dùng',
     required: false,
   })
-  @IsString()
   @IsOptional()
+  @IsString()
   description?: string;
+
+  @ApiProperty({
+    example: false,
+    required: false,
+    description: 'Đánh dấu permission hệ thống',
+  })
+  @IsOptional()
+  isSystem?: boolean;
 }
