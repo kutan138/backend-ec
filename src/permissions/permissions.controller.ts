@@ -14,12 +14,14 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiParam,
+  ApiOkResponse,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { PermissionsService } from './permissions.service';
 import { Permission } from './entities/permission.entity';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
+import { PermissionMetaResponseDto } from './dto/permission-meta-response.dto';
 
 @ApiTags('permissions')
 @Controller('permissions')
@@ -76,5 +78,18 @@ export class PermissionsController {
   })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  @Get('meta')
+  @ApiOperation({
+    summary: 'Lấy metadata permission cho frontend',
+    description:
+      'Dùng để render UI (module, system action, custom action). Không dùng cho auth.',
+  })
+  @ApiOkResponse({
+    type: PermissionMetaResponseDto,
+  })
+  getMeta() {
+    return this.service.getMeta();
   }
 }

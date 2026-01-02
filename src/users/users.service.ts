@@ -45,10 +45,15 @@ export class UsersService {
     // chỉ lấy name của role
     const roleNames = user.roles?.map((r) => r.name) ?? [];
 
-    // gộp quyền từ role và user
+    // gộp quyền từ role
     const rolePermissions =
-      user.roles?.flatMap((r) => r.permissions?.map((p) => p.name)) ?? [];
-    const userPermissions = user.permissions?.map((p) => p.name) ?? [];
+      user.roles?.flatMap((r) =>
+        r.permissions?.map((p) => `${p.module}.${p.action}`),
+      ) ?? [];
+
+    // gộp quyền gán trực tiếp cho user
+    const userPermissions =
+      user.permissions?.map((p) => `${p.module}.${p.action}`) ?? [];
 
     const allPermissions = Array.from(
       new Set([...rolePermissions, ...userPermissions]),

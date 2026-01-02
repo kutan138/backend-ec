@@ -1,15 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsOptional, IsString, Matches } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
+import { PermissionAction } from '../enums/permission-action.enum';
 
 export class CreatePermissionDto {
   @ApiProperty({
-    example: 'user.view',
-    description: 'Permission key (module.action)',
+    example: 'user',
+    description: 'Module',
   })
-  @Matches(/^[a-z]+\.[a-z]+$/, {
-    message: 'key phải theo dạng module.action (vd: user.view)',
+  module: string;
+
+  @ApiProperty({
+    enum: PermissionAction,
+    example: PermissionAction.READ,
   })
-  name: string;
+  action: PermissionAction;
 
   @ApiProperty({
     example: 'Xem danh sách người dùng',

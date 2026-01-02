@@ -1,4 +1,5 @@
 // permissions/entities/permission.entity.ts
+import { ApiProperty } from '@nestjs/swagger';
 import { Role } from 'src/roles/entities/role.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -10,9 +11,10 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { ApiProperty } from '@nestjs/swagger';
+import { PermissionAction } from '../enums/permission-action.enum';
 
 @Entity('permissions')
+@Index(['module', 'action'], { unique: true })
 export class Permission {
   @ApiProperty({
     example: 'uuid-v4',
@@ -22,12 +24,22 @@ export class Permission {
   id: string;
 
   @ApiProperty({
-    example: 'user.view',
-    description: 'Permission key theo dạng module.action',
+    example: 'user',
+    description: 'Module',
   })
-  @Index({ unique: true })
-  @Column()
-  name: string;
+  @Column({ length: 50 })
+  module: string;
+
+  @ApiProperty({
+    example: PermissionAction.READ,
+    enum: PermissionAction,
+    description: 'Hành động CRUD',
+  })
+  @Column({
+    type: 'enum',
+    enum: PermissionAction,
+  })
+  action: PermissionAction;
 
   @ApiProperty({
     example: 'Xem danh sách người dùng',
@@ -55,8 +67,6 @@ export class Permission {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
-  // ❌ Không expose roles/users trong swagger response
-  // => tránh vòng lặp & payload to
   @ManyToMany(() => Role, (role) => role.permissions)
   roles: Role[];
 

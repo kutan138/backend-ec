@@ -8,12 +8,6 @@ export class PermissionResponseDto {
   id: string;
 
   @ApiProperty({
-    example: 'read:users',
-    description: 'Permission name',
-  })
-  name: string;
-
-  @ApiProperty({
     example: 'Read users permission',
     description: 'Permission description',
     required: false,

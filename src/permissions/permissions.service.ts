@@ -23,15 +23,18 @@ export class PermissionsService {
    */
   async create(dto: CreatePermissionDto): Promise<Permission> {
     const existed = await this.permissionRepo.findOne({
-      where: { name: dto.name },
+      where: {
+        module: dto.module,
+        action: dto.action,
+      },
     });
-
     if (existed) {
-      throw new ConflictException('Permission key đã tồn tại');
+      throw new ConflictException('Permission đã tồn tại');
     }
 
     const permission = this.permissionRepo.create({
-      name: dto.name,
+      module: dto.module,
+      action: dto.action,
       description: dto.description,
       isSystem: dto.isSystem ?? false,
     });
@@ -96,6 +99,28 @@ export class PermissionsService {
 
     return {
       message: 'Permission đã được xóa',
+    };
+  }
+
+  async getMeta() {
+    const permissions = await this.permissionRepo.find({
+      select: ['module', 'action', 'isSystem'],
+    });
+
+    const modules = Array.from(new Set(permissions.map((p) => p.module)));
+
+    const systemActions = Array.from(
+      new Set(permissions.filter((p) => p.isSystem).map((p) => p.action)),
+    );
+
+    const customActions = Array.from(
+      new Set(permissions.filter((p) => !p.isSystem).map((p) => p.action)),
+    );
+
+    return {
+      modules: modules.sort(),
+      systemActions: systemActions.sort(),
+      customActions: customActions.sort(),
     };
   }
 }
