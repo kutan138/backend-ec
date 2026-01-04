@@ -38,6 +38,7 @@ export class Permission {
   @Column({
     type: 'enum',
     enum: PermissionAction,
+    enumName: 'permission_action_enum',
   })
   action: PermissionAction;
 
@@ -45,7 +46,7 @@ export class Permission {
     example: 'Xem danh sách người dùng',
     required: false,
   })
-  @Column({ nullable: true })
+  @Column({ nullable: false })
   description: string;
 
   @ApiProperty({
