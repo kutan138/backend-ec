@@ -1,9 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from 'src/permissions/entities/permission.entity';
 import { In, Repository } from 'typeorm';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { Role } from './entities/role.entity';
+import { UpdateRoleDto } from './dto/update-role.dto';
 
 @Injectable()
 export class RolesService {
@@ -55,5 +60,64 @@ export class RolesService {
       permissions,
     });
     return this.repo.save(newRole);
+  }
+
+  async findAll() {
+    const roles = await this.repo.find({
+      relations: ['permissions'],
+      order: { createdAt: 'DESC' },
+    });
+
+    return roles.map((r) => ({
+      id: r.id,
+      name: r.name,
+      description: r.description,
+      permissionsCount: r.permissions?.length ?? 0,
+      createdAt: r.createdAt,
+    }));
+  }
+
+  async findOne(id: string) {
+    const role = await this.repo.findOne({
+      where: { id },
+      relations: ['permissions'],
+    });
+    if (!role) {
+      throw new NotFoundException('Role không tồn tại');
+    }
+    return role;
+  }
+
+  async update(id: string, dto: UpdateRoleDto) {
+    const role = await this.findOne(id);
+
+    if (role.name === 'ADMIN') {
+      throw new ForbiddenException('Không thể sửa role ADMIN');
+    }
+
+    Object.assign(role, dto);
+    return this.repo.save(role);
+  }
+
+  async remove(id: string) {
+    const role = await this.findOne(id);
+
+    if (role.name === 'ADMIN') {
+      throw new ForbiddenException('Không thể xoá role ADMIN');
+    }
+
+    await this.repo.remove(role);
+    return { success: true };
+  }
+
+  async assignPermissions(roleId: string, permissionIds: string[]) {
+    const role = await this.findOne(roleId);
+
+    const permissions = await this.permissionRepo.findBy({
+      id: In(permissionIds),
+    });
+
+    role.permissions = permissions;
+    return this.repo.save(role);
   }
 }
