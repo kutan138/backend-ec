@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddCustomPermissions1700001000000 implements MigrationInterface {
+export class AddCustomPermissions1767492984171 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const permissions = [
       {
@@ -23,10 +23,16 @@ export class AddCustomPermissions1700001000000 implements MigrationInterface {
     for (const p of permissions) {
       await queryRunner.query(
         `
-        INSERT INTO permissions (module, action, description)
-        VALUES ($1, $2, $3)
-        ON CONFLICT (module, action) DO NOTHING
-        `,
+    INSERT INTO permissions (
+      id, module, action, description,
+      "isSystem", "createdAt", "updatedAt"
+    )
+    VALUES (
+      gen_random_uuid(), $1, $2, $3,
+      false, NOW(), NOW()
+    )
+    ON CONFLICT (module, action) DO NOTHING
+    `,
         [p.module, p.action, p.description],
       );
     }

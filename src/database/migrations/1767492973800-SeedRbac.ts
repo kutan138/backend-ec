@@ -4,7 +4,7 @@ import * as argon2 from 'argon2';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import { AuthProvider } from 'src/auth/enums/AuthProvider';
 
-export class SeedRbacSafe1736200000000 implements MigrationInterface {
+export class SeedRbac1767492973800 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     /**
      * 0. CLEAN DEV DATA (AN TOÀN FK)
@@ -34,6 +34,8 @@ export class SeedRbacSafe1736200000000 implements MigrationInterface {
 
         (gen_random_uuid(), 'order', 'read', 'Xem đơn hàng', true, NOW(), NOW()),
         (gen_random_uuid(), 'order', 'update', 'Cập nhật đơn hàng', true, NOW(), NOW())
+
+        
     `);
 
     /**

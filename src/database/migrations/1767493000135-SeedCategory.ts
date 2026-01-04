@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class SeedCategory1767348699595 implements MigrationInterface {
+export class SeedCategory1767493000135 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // 1. Parent categories
     await queryRunner.query(

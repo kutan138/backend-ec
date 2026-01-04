@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class CreateTables1735689500000 implements MigrationInterface {
+export class CreateTables1767492942707 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // Create enum type for AuthProvider
     await queryRunner.query(`
@@ -9,6 +9,23 @@ export class CreateTables1735689500000 implements MigrationInterface {
       EXCEPTION
         WHEN duplicate_object THEN null;
       END $$;
+    `);
+
+    // Create enum type for PermissionAction
+    await queryRunner.query(`
+        DO $$ BEGIN
+            CREATE TYPE "permission_action_enum" AS ENUM (
+            'read',
+            'create',
+            'update',
+            'delete',
+            'cancel',
+            'publish',
+            'assign.role'
+            );
+        EXCEPTION
+            WHEN duplicate_object THEN null;
+        END $$;
     `);
 
     // Create users table
@@ -52,11 +69,14 @@ export class CreateTables1735689500000 implements MigrationInterface {
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS "permissions" (
         "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        "name" varchar UNIQUE NOT NULL,
+        "module" varchar(50) NOT NULL,
+        "action" permission_action_enum NOT NULL,
         "description" text,
+        "isSystem" boolean NOT NULL DEFAULT false,
         "createdAt" timestamp NOT NULL DEFAULT NOW(),
-        "updatedAt" timestamp NOT NULL DEFAULT NOW()
-      )
+        "updatedAt" timestamp NOT NULL DEFAULT NOW(),
+        CONSTRAINT permissions_module_action_unique UNIQUE ("module", "action")
+      );
     `);
 
     // Create roles table
@@ -214,5 +234,6 @@ export class CreateTables1735689500000 implements MigrationInterface {
 
     // Drop enum type
     await queryRunner.query(`DROP TYPE IF EXISTS "auth_provider_enum"`);
+    await queryRunner.query(`DROP TYPE IF EXISTS "permission_action_enum"`);
   }
 }
