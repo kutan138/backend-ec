@@ -24,16 +24,33 @@ export class AddCustomPermissions1767492984171 implements MigrationInterface {
       await queryRunner.query(
         `
     INSERT INTO permissions (
-      id, module, action, description,
-      "isSystem", "createdAt", "updatedAt"
+      id,
+      module,
+      action,
+      key,
+      description,
+      "isSystem",
+      "createdAt",
+      "updatedAt"
     )
     VALUES (
-      gen_random_uuid(), $1, $2, $3,
-      false, NOW(), NOW()
+      gen_random_uuid(),
+      $1,
+      $2,
+      $3,
+      $4,
+      false,
+      NOW(),
+      NOW()
     )
     ON CONFLICT (module, action) DO NOTHING
     `,
-        [p.module, p.action, p.description],
+        [
+          p.module,
+          p.action,
+          `${p.module}:${p.action}`, // key
+          p.description,
+        ],
       );
     }
   }

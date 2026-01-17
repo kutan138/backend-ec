@@ -1,3 +1,4 @@
+import { AuthProvider, AuthProviderEnumName } from 'src/database/enums';
 import { User } from 'src/users/entities/user.entity';
 import {
   Column,
@@ -8,7 +9,6 @@ import {
   Unique,
   UpdateDateColumn,
 } from 'typeorm';
-import { AuthProvider } from '../enums/AuthProvider';
 
 @Entity('identities')
 @Unique(['provider', 'providerUserId'])
@@ -19,7 +19,11 @@ export class Identity {
   @Column({ nullable: true })
   providerUserId: string;
 
-  @Column({ type: 'enum', enum: AuthProvider })
+  @Column({
+    type: 'enum',
+    enum: AuthProvider,
+    enumName: AuthProviderEnumName,
+  })
   provider: AuthProvider;
 
   @Column({ nullable: true })

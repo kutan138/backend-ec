@@ -18,7 +18,7 @@ export class Role {
   @Column({ unique: true })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: false, type: 'text' })
   description: string;
 
   @CreateDateColumn({ type: 'timestamp' })

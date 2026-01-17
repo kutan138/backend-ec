@@ -1,8 +1,11 @@
 // permissions/entities/permission.entity.ts
 import { ApiProperty } from '@nestjs/swagger';
+import { PermissionAction, PermissionActionEnumName } from 'src/database/enums';
 import { Role } from 'src/roles/entities/role.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
+  BeforeInsert,
+  BeforeUpdate,
   Column,
   CreateDateColumn,
   Entity,
@@ -11,7 +14,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { PermissionAction } from '../enums/permission-action.enum';
 
 @Entity('permissions')
 @Index(['module', 'action'], { unique: true })
@@ -22,6 +24,14 @@ export class Permission {
   })
   @PrimaryGeneratedColumn('uuid')
   id: string;
+
+  @ApiProperty({
+    example: 'user:view',
+    description:
+      'Permission key theo định dạng <module>:<action> (ví dụ: user:view, post:create, user:*)',
+  })
+  @Column({ unique: true, length: 100 })
+  key: string;
 
   @ApiProperty({
     example: 'user',
@@ -38,15 +48,15 @@ export class Permission {
   @Column({
     type: 'enum',
     enum: PermissionAction,
-    enumName: 'permission_action_enum',
+    enumName: PermissionActionEnumName,
   })
   action: PermissionAction;
 
   @ApiProperty({
     example: 'Xem danh sách người dùng',
-    required: false,
+    required: true,
   })
-  @Column({ nullable: false })
+  @Column({ nullable: false, type: 'text' })
   description: string;
 
   @ApiProperty({
@@ -73,4 +83,10 @@ export class Permission {
 
   @ManyToMany(() => User, (user) => user.permissions)
   users: User[];
+
+  @BeforeInsert()
+  @BeforeUpdate()
+  syncKey() {
+    this.key = `${this.module}:${this.action}`;
+  }
 }

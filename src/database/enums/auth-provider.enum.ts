@@ -3,3 +3,5 @@ export enum AuthProvider {
   GOOGLE = 'google',
   FACEBOOK = 'facebook',
 }
+
+export const AuthProviderEnumName = 'auth_provider_enum';

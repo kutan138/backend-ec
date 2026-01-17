@@ -15,11 +15,11 @@ import { User } from 'src/users/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { RegisterDto } from './dtos/register.dto';
 import { Identity } from './entities/identity.entity';
-import { AuthProvider } from './enums/AuthProvider';
 import { UserResponseDto } from './dtos/user-response.dto';
 import { RegisterSeederDto } from './dtos/register-seeder.dto';
 import { TypedConfigService } from 'src/config/TypedConfigService';
 import { UsersService } from 'src/users/users.service';
+import { AuthProvider } from 'src/database/enums';
 
 @Injectable()
 export class AuthService {

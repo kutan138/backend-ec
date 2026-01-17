@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import * as argon2 from 'argon2';
 import { MigrationInterface, QueryRunner } from 'typeorm';
-import { AuthProvider } from 'src/auth/enums/AuthProvider';
+import { AuthProvider } from '../enums';
 
 export class SeedRbac1767492973800 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -20,23 +20,30 @@ export class SeedRbac1767492973800 implements MigrationInterface {
      * 1. SEED PERMISSIONS (module + action)
      */
     await queryRunner.query(`
-      INSERT INTO permissions (id, module, action, description, "isSystem", "createdAt", "updatedAt")
-      VALUES
-        (gen_random_uuid(), 'user', 'read', 'Xem người dùng', true, NOW(), NOW()),
-        (gen_random_uuid(), 'user', 'create', 'Tạo người dùng', true, NOW(), NOW()),
-        (gen_random_uuid(), 'user', 'update', 'Cập nhật người dùng', true, NOW(), NOW()),
-        (gen_random_uuid(), 'user', 'delete', 'Xóa người dùng', true, NOW(), NOW()),
+  INSERT INTO permissions (
+    id,
+    module,
+    action,
+    key,
+    description,
+    "isSystem",
+    "createdAt",
+    "updatedAt"
+  )
+  VALUES
+    (gen_random_uuid(), 'user', 'read',   'user:read',   'Xem người dùng', true, NOW(), NOW()),
+    (gen_random_uuid(), 'user', 'create', 'user:create', 'Tạo người dùng', true, NOW(), NOW()),
+    (gen_random_uuid(), 'user', 'update', 'user:update', 'Cập nhật người dùng', true, NOW(), NOW()),
+    (gen_random_uuid(), 'user', 'delete', 'user:delete', 'Xóa người dùng', true, NOW(), NOW()),
 
-        (gen_random_uuid(), 'product', 'read', 'Xem sản phẩm', true, NOW(), NOW()),
-        (gen_random_uuid(), 'product', 'create', 'Tạo sản phẩm', true, NOW(), NOW()),
-        (gen_random_uuid(), 'product', 'update', 'Cập nhật sản phẩm', true, NOW(), NOW()),
-        (gen_random_uuid(), 'product', 'delete', 'Xóa sản phẩm', true, NOW(), NOW()),
+    (gen_random_uuid(), 'product', 'read',   'product:read',   'Xem sản phẩm', true, NOW(), NOW()),
+    (gen_random_uuid(), 'product', 'create', 'product:create', 'Tạo sản phẩm', true, NOW(), NOW()),
+    (gen_random_uuid(), 'product', 'update', 'product:update', 'Cập nhật sản phẩm', true, NOW(), NOW()),
+    (gen_random_uuid(), 'product', 'delete', 'product:delete', 'Xóa sản phẩm', true, NOW(), NOW()),
 
-        (gen_random_uuid(), 'order', 'read', 'Xem đơn hàng', true, NOW(), NOW()),
-        (gen_random_uuid(), 'order', 'update', 'Cập nhật đơn hàng', true, NOW(), NOW())
-
-        
-    `);
+    (gen_random_uuid(), 'order', 'read',   'order:read',   'Xem đơn hàng', true, NOW(), NOW()),
+    (gen_random_uuid(), 'order', 'update', 'order:update', 'Cập nhật đơn hàng', true, NOW(), NOW());
+`);
 
     /**
      * 2. SEED ROLES

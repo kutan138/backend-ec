@@ -7,3 +7,5 @@ export enum PermissionAction {
   PUBLISH = 'publish',
   ASSIGN_ROLE = 'assign.role',
 }
+
+export const PermissionActionEnumName = 'permission_action_enum';

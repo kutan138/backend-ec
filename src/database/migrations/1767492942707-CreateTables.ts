@@ -1,20 +1,12 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
+import { AuthProviderEnumName, PermissionActionEnumName } from '../enums';
 
 export class CreateTables1767492942707 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Create enum type for AuthProvider
-    await queryRunner.query(`
-      DO $$ BEGIN
-        CREATE TYPE "auth_provider_enum" AS ENUM ('local', 'google', 'facebook');
-      EXCEPTION
-        WHEN duplicate_object THEN null;
-      END $$;
-    `);
-
     // Create enum type for PermissionAction
     await queryRunner.query(`
         DO $$ BEGIN
-            CREATE TYPE "permission_action_enum" AS ENUM (
+            CREATE TYPE ${PermissionActionEnumName} AS ENUM (
             'read',
             'create',
             'update',
@@ -26,6 +18,15 @@ export class CreateTables1767492942707 implements MigrationInterface {
         EXCEPTION
             WHEN duplicate_object THEN null;
         END $$;
+    `);
+
+    // Create enum type for Identities provider
+    await queryRunner.query(`
+      DO $$ BEGIN
+        CREATE TYPE ${AuthProviderEnumName} AS ENUM ('local', 'google', 'facebook');
+      EXCEPTION
+        WHEN duplicate_object THEN null;
+      END $$;
     `);
 
     // Create users table
@@ -45,7 +46,7 @@ export class CreateTables1767492942707 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS "identities" (
         "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         "providerUserId" varchar,
-        "provider" "auth_provider_enum" NOT NULL,
+        "provider" ${AuthProviderEnumName} NOT NULL,
         "passwordHash" varchar,
         "isActive" boolean NOT NULL DEFAULT false,
         "accessToken" text,
@@ -67,17 +68,19 @@ export class CreateTables1767492942707 implements MigrationInterface {
 
     // Create permissions table
     await queryRunner.query(`
-      CREATE TABLE IF NOT EXISTS "permissions" (
-        "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-        "module" varchar(50) NOT NULL,
-        "action" permission_action_enum NOT NULL,
-        "description" text,
-        "isSystem" boolean NOT NULL DEFAULT false,
-        "createdAt" timestamp NOT NULL DEFAULT NOW(),
-        "updatedAt" timestamp NOT NULL DEFAULT NOW(),
-        CONSTRAINT permissions_module_action_unique UNIQUE ("module", "action")
-      );
-    `);
+  CREATE TABLE IF NOT EXISTS "permissions" (
+    "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    "module" varchar(50) NOT NULL,
+    "action" ${PermissionActionEnumName} NOT NULL,
+    "key" varchar(100) NOT NULL,
+    "description" text,
+    "isSystem" boolean NOT NULL DEFAULT false,
+    "createdAt" timestamp NOT NULL DEFAULT NOW(),
+    "updatedAt" timestamp NOT NULL DEFAULT NOW(),
+    CONSTRAINT permissions_key_unique UNIQUE ("key"),
+    CONSTRAINT permissions_module_action_unique UNIQUE ("module", "action")
+  );
+`);
 
     // Create roles table
     await queryRunner.query(`
@@ -135,6 +138,8 @@ export class CreateTables1767492942707 implements MigrationInterface {
         "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         "name" varchar(120) UNIQUE NOT NULL,
         "description" text,
+        "parentId" uuid NULL,
+        "order" int NOT NULL DEFAULT 0,
         "createdAt" timestamp NOT NULL DEFAULT NOW(),
         "updatedAt" timestamp NOT NULL DEFAULT NOW()
       )
@@ -233,7 +238,7 @@ export class CreateTables1767492942707 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE IF EXISTS "users"`);
 
     // Drop enum type
-    await queryRunner.query(`DROP TYPE IF EXISTS "auth_provider_enum"`);
-    await queryRunner.query(`DROP TYPE IF EXISTS "permission_action_enum"`);
+    await queryRunner.query(`DROP TYPE IF EXISTS ${AuthProviderEnumName}`);
+    await queryRunner.query(`DROP TYPE IF EXISTS ${PermissionActionEnumName}`);
   }
 }

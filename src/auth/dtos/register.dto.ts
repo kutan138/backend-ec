@@ -6,7 +6,7 @@ import {
   MaxLength,
   MinLength,
 } from 'class-validator';
-import { AuthProvider } from '../enums/AuthProvider';
+import { AuthProvider } from 'src/database/enums';
 
 export class RegisterDto {
   @ApiProperty({

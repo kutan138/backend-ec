@@ -44,6 +44,19 @@ export class PermissionsController {
     return this.service.findAll();
   }
 
+  @Get('meta')
+  @ApiOperation({
+    summary: 'Lấy metadata permission cho frontend',
+    description:
+      'Dùng để render UI (module, system action, custom action). Không dùng cho auth.',
+  })
+  @ApiOkResponse({
+    type: PermissionMetaResponseDto,
+  })
+  getMeta() {
+    return this.service.getMeta();
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Chi tiết permission' })
   @ApiParam({
@@ -78,18 +91,5 @@ export class PermissionsController {
   })
   remove(@Param('id') id: string) {
     return this.service.remove(id);
-  }
-
-  @Get('meta')
-  @ApiOperation({
-    summary: 'Lấy metadata permission cho frontend',
-    description:
-      'Dùng để render UI (module, system action, custom action). Không dùng cho auth.',
-  })
-  @ApiOkResponse({
-    type: PermissionMetaResponseDto,
-  })
-  getMeta() {
-    return this.service.getMeta();
   }
 }
